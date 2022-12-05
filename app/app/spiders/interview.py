@@ -13,9 +13,9 @@ CITY_KG_RU = ['Айдаркен','Балыкчы','Баткен','Бишкек',
               'Ноокат','Орловка','Ош','Раззаков','Сулюкта','Талас','Таш-Кумыр','Токмок','Токтогул','Узген',
               'Чолпон-Ата','Шопоков']
 
-CITY_KG_EN = ['Header','Fisherman','Batken','Bishkek','Jalal-Abad','Step by step','Cain','Cant','Black-Axe','Caracol',
-              'Kara-Kul','Black Water','Min','Caravan','Kok-Jangak','Kochkor-Ata','Kyzyl-Kiya','Oil-Water','Naryn',
-              'Nookat','Orlovka','Osh','Razzakov','Sulyukta','Talas','Tash-Kumyr','Knock','Stop','Expired',
+CITY_KG_EN = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','Kaindy','Kant','Kara-Balta','Karakol',
+              'Kara-Kul','Kara-Suu','Kemin','Kerben','Kok-Dzhangak','Kochkor-Ata','Kyzyl-Kiya','Mailuu-Suu','Naryn',
+              'Nookat','Orlovka','Osh','Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok','Toktogul','Uzgen',
               'Cholpon-Ata','Shopokov']
 
 class InterviewSpider(scrapy.Spider):
