@@ -7,6 +7,8 @@ from time import sleep
 from datetime import datetime as dt
 from random import choice, randrange
 
+import traceback
+
 START_URL = 'https://forms.gle/s8ME2PMP9o5PMKsW7'
 
 CITY_KG_RU = ['Айдаркен','Балыкчы','Баткен','Бишкек','Джалал-Абад','Кадамжай','Каинды','Кант','Кара-Балта','Каракол',
@@ -37,7 +39,7 @@ class InterviewSpider(scrapy.Spider):
         self.driver = responce.meta['driver']
 
         sleep(2)
-        self.click_by_label_for(5, 'Choose language', 
+        self._click_by_label_for(5, 'Choose language', 
             {5: 'English language', 8: 'Русский язык', 11: 'Кыргыз тили'}
         ) # i5|8|11
         sleep(2)
@@ -48,7 +50,7 @@ class InterviewSpider(scrapy.Spider):
     def parse_2nd_page_review(self):
         sleep(5)
 
-        self.input_form_for(1, 'Please indicate your city', choice(CITY_KG_EN))
+        self._input_form_for(1, 'Please indicate your city', choice(CITY_KG_EN))
         sleep(2)
 
         self.click_by_label_for(9, 'Please indicate your gende', {9: 'Female', 12: 'Male'}) # i9|12
@@ -85,8 +87,17 @@ class InterviewSpider(scrapy.Spider):
 
             table_1 = self.driver.find_element_by_css_selector(table_1_query).click()
 
-        sleep(1)
 
+        self._input_table_form_for(
+            23, 
+            ('How much influence do your family, friends and colleagues have on your decision to make sacrifices '
+             'to protect the environment?'), 
+            ['Family', 'Friends', 'Colleagues'], 
+            [randrange(2, 7) for _ in range(5)],
+            ['Never', 'Rarely', 'From time to time', 'Often', 'Always']
+        )
+        sleep(1)
+        import ipdb; ipdb.set_trace()
         for idx in (2, 4, 6):
             table_1_query = ( 'div[aria-labelledby="i27"] > div:nth-child(1) > '
                              f'div > div:nth-child({idx}) > span > div:nth-child({randrange(2, 6)}) > div > div' )
@@ -208,7 +219,27 @@ class InterviewSpider(scrapy.Spider):
 
         import ipdb; ipdb.set_trace()
 
-    def input_form_for(self, id, question, answer):
+    def _input_table_form_for(self, id, title, questions, answer_options, answer_text):
+        answer = f"{title}\n\n"
+        try:
+            for idx, question in enumerate(questions):
+                answer_id = (idx+1)*2
+                table_query = (f'div[aria-labelledby="i{id}"] > div:nth-child(1) > div > '
+                               f'div:nth-child({answer_id}) > span > div:nth-child({answer_options[idx]}) > '
+                                'div > div')
+
+                self.driver.find_element_by_css_selector(table_query).click()
+                answer += f'{question}: {answer_text[idx]}\n'
+
+            self.answers.append(answer)
+        except:
+            if self.debug == True:
+                import ipdb; ipdb.set_trace()
+            else:
+                self.logger.critical(f"""Can't find input[aria-labelledby="i{id}"]""")        
+            traceback.print_exc()
+
+    def _input_form_for(self, id, question, answer):
         try:
             self.driver.find_element_by_css_selector(f'input[aria-labelledby="i{id}"]').send_keys(answer)
             self.answers.append(f"{question}: {answer}")
@@ -217,8 +248,9 @@ class InterviewSpider(scrapy.Spider):
                 import ipdb; ipdb.set_trace()
             else:
                 self.logger.critical(f"""Can't find input[aria-labelledby="i{id}"]""")        
+            traceback.print_exc()
 
-    def click_by_label_for(self, id, question, answers):
+    def _click_by_label_for(self, id, question, answers):
         try:
             self.driver.find_element_by_css_selector(f'label[for="i{id}"]').click()
             self.answers.append(f"{question}: {answers[id]}")
@@ -227,4 +259,6 @@ class InterviewSpider(scrapy.Spider):
                 import ipdb; ipdb.set_trace()
             else:
                 self.logger.critical(f"""Can't find label[for="i{id}"]""")
+        traceback.print_exc()
+
 
