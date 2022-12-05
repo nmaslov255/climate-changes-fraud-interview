@@ -4,6 +4,7 @@ from scrapy_selenium import SeleniumRequest
 from scrapy.selector import Selector
 
 from time import sleep
+from datetime import datetime as dt
 from random import choice, randrange
 
 START_URL = 'https://forms.gle/s8ME2PMP9o5PMKsW7'
@@ -18,6 +19,8 @@ CITY_KG_EN = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','
               'Nookat','Orlovka','Osh','Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok','Toktogul','Uzgen',
               'Cholpon-Ata','Shopokov']
 
+now = dt.now()
+
 class InterviewSpider(scrapy.Spider):
     name = 'interview'
     allowed_domains = [START_URL]
@@ -25,7 +28,7 @@ class InterviewSpider(scrapy.Spider):
 
     debug = True
     driver = None
-    answers = []
+    answers = [f"Date: {now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"]
 
     def start_requests(self):
         yield SeleniumRequest(url=START_URL, callback=self.parse_1st_page_review)
@@ -45,7 +48,7 @@ class InterviewSpider(scrapy.Spider):
     def parse_2nd_page_review(self):
         sleep(5)
 
-        self.driver.find_element_by_css_selector('input[aria-labelledby="i1"]').send_keys(choice(CITY_KG_EN))
+        self.input_form_for(1, 'Please indicate your city', choice(CITY_KG_EN))
         sleep(2)
 
         self.click_by_label_for(9, 'Please indicate your gende', {9: 'Female', 12: 'Male'}) # i9|12
@@ -165,12 +168,10 @@ class InterviewSpider(scrapy.Spider):
 
         self.parse_6th_page_review()
 
-    def parse_6th_page_review(self):
-        import ipdb; ipdb.set_trace()
-        
+    def parse_6th_page_review(self):        
         sleep(5)
 
-        self.driver.find_element_by_css_selector('input[aria-labelledby="i1"]').send_keys(randrange(7))
+        self.input_form_for(1, 'Average smoking member in your family', randrange(7))
         sleep(1)
         for idx in (2, 4, 6):
             table_1_query = ( 'div[aria-labelledby="i5"] > div:nth-child(1) > '
@@ -203,13 +204,23 @@ class InterviewSpider(scrapy.Spider):
             table_1 = self.driver.find_element_by_css_selector(table_1_query).click()
 
         sleep(1)
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        # self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
 
         import ipdb; ipdb.set_trace()
 
+    def input_form_for(self, id, question, answer):
+        try:
+            self.driver.find_element_by_css_selector(f'input[aria-labelledby="i{id}"]').send_keys(answer)
+            self.answers.append(f"{question}: {answer}")
+        except:
+            if self.debug == True:
+                import ipdb; ipdb.set_trace()
+            else:
+                self.logger.critical(f"""Can't find input[aria-labelledby="i{id}"]""")        
+
     def click_by_label_for(self, id, question, answers):
         try:
-            self.driver.find_element_by_css_selector(f'label[for="i{id}"]').click() # i9|12
+            self.driver.find_element_by_css_selector(f'label[for="i{id}"]').click()
             self.answers.append(f"{question}: {answers[id]}")
         except:
             if self.debug == True:
