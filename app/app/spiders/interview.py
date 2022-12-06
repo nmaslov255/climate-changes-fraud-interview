@@ -41,9 +41,12 @@ class InterviewSpider(scrapy.Spider):
                   'Cholpon-Ata','Shopokov', 'Karakol']
 
     answers = [f"Date: {now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"]
-    driver = None
-    debug = True
-    lang = None
+    current_page = None
+    driver       = None
+    offset       = 0
+    debug        = True
+    lang         = None
+
 
     def start_requests(self):
         yield SeleniumRequest(url=START_URL, callback=self.parse_1st_page_review)
@@ -52,7 +55,8 @@ class InterviewSpider(scrapy.Spider):
         self.driver = responce.meta['driver']
 
         sleep(2)
-        random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
+        # random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
+        random_lang = 5
         self._click_by_label_for(
             random_lang, 
             'Choose language', 
@@ -62,8 +66,7 @@ class InterviewSpider(scrapy.Spider):
         self._set_lang(random_lang)
 
         sleep(2)
-        self.driver.find_element_by_css_selector('div[data-is-receipt-checked] div[role="button"]').click()
-
+        self._enter_to_interview()
         self.parse_2nd_page_review()
 
     def parse_2nd_page_review(self):
@@ -71,26 +74,43 @@ class InterviewSpider(scrapy.Spider):
 
         self._input_form_for(1, 'Please indicate your city', self._select_random_city())
         sleep(2)
-        import ipdb; ipdb.set_trace()
-        self._click_by_label_for(9, 'Please indicate your gende', {9: 'Female', 12: 'Male'}) # i9|12
+
+        self._click_by_label_for(
+            choice_with_probability([9, 12], [0.5, 0.5]), 
+            'Please indicate your gende', 
+            {9: 'Female', 12: 'Male'}
+        ) # i9|12
+
+        if self.lang != 'en':
+            self.offset += -3
+
         sleep(2)
-        self._click_by_label_for(22, 'Please indicate your age', 
+        self._click_by_label_for(
+            choice_with_probability([22, 25, 28, 31], [0.3, 0.2, 0.1, 0.4]), 
+            'Please indicate your age', 
             {22: '16-24', 25: '25-44', 28: '45-64', 31: 'Prefer not to say'}
         ) # i22|25|28|31
         sleep(2)
 
-        self._click_by_label_for(38, 'Please indicate your household income per month',
+        self._click_by_label_for(
+            choice_with_probability([38, 41, 59], [0.3, 0.2, 0.5]), 
+            'Please indicate your household income per month',
             {38: '10,000 KGS', 41: '20,000 KGS', 44: '30,000 KGS', 47: '40,000 KGS', 50: '50,000 KGS', 
              53: '75,000 KGS and more', 56: 'I don\'t know', 59: 'Prefer not to say'}
          ) # i38|41|44|47|50|53|56|59
         sleep(2)
-        self._click_by_label_for(69, 'Please indicate your education level', {
-            66: 'No Formal Education', 69: 'Primary Education', 72: 'Secondary', 75: 'University Degree', 
-            78: 'Master or equivalent'}
+        self._click_by_label_for(
+            choice_with_probability([66, 69, 72, 75], [0.1, 0.2, 0.6, 0.1]), 
+            'Please indicate your education level', 
+            {66: 'No Formal Education', 69: 'Primary Education', 72: 'Secondary', 75: 'University Degree', 
+             78: 'Master or equivalent'}
         ) # i66|69|72|75|78
         sleep(2)
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
-        
+
+        if self.lang != 'en':
+            self.offset = 0
+
+        self._go_to_next_page()
         self.parse_3th_page_review()
 
     def parse_3th_page_review(self):
@@ -129,8 +149,7 @@ class InterviewSpider(scrapy.Spider):
              41: 'From time to time', 44: 'Very often'}
         ) # i35|38|41|44
 
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
-
+        self._go_to_next_page()
         self.parse_4th_page_review()
 
     def parse_4th_page_review(self):
@@ -152,8 +171,7 @@ class InterviewSpider(scrapy.Spider):
         )
         sleep(1)
 
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
-
+        self._go_to_next_page()
         self.parse_5th_page_review()
 
 
@@ -181,10 +199,14 @@ class InterviewSpider(scrapy.Spider):
         ) # i41|44|47|50|53
 
         sleep(1)
-        self._click_by_label_for(60, 'How much do you know about climate change', 
-            {60: 'This is not an issue', 63: 'I don\'t know anything', 66: 'I am not interested to know', 
-             69: 'I know a little bit', 72: 'I know a lot'}
-        ) # i60|63|66|69|72
+
+        if self.lang == 'en':
+            self._click_by_label_for(60, 'How much do you know about climate change', 
+                {60: 'This is not an issue', 63: 'I don\'t know anything', 66: 'I am not interested to know', 
+                 69: 'I know a little bit', 72: 'I know a lot'}
+            ) # i60|63|66|69|72
+        else:
+            self.offset -= 19
 
         sleep(1)
         self._click_by_label_for(79, 'Climate change does not exist', 
@@ -193,8 +215,9 @@ class InterviewSpider(scrapy.Spider):
              88: 'Climate change does not exist'}
         ) # i79|82|85|88
         
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        self.offset = 0
 
+        self._go_to_next_page()
         self.parse_6th_page_review()
 
     def parse_6th_page_review(self):        
@@ -221,14 +244,26 @@ class InterviewSpider(scrapy.Spider):
 
         self._click_by_label_for(17, 'Do you use an air purifier at home', {17: 'Yes', 20: 'No'}) # i17|20
 
-        sleep(1)
-        self._input_table_form_for(
-            26, 
-            ('Have you experienced the following in the last three months?'),
-            ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever', 'Other'], 
-            [randrange(5) for _ in range(7)],
-            ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
-        )
+        if self.lang == 'kg':
+            self.offset = -3
+
+            sleep(1)
+            self._input_table_form_for(
+                26, 
+                ('Have you experienced the following in the last three months?'),
+                ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever'], 
+                [randrange(5) for _ in range(6)],
+                ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
+            )
+        else:
+            self._input_table_form_for(
+                26, 
+                ('Have you experienced the following in the last three months?'),
+                ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever', 'Other'], 
+                [randrange(5) for _ in range(7)],
+                ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
+            )
+         
 
         sleep(1)
 
@@ -254,12 +289,12 @@ class InterviewSpider(scrapy.Spider):
 
         import ipdb; ipdb.set_trace()
 
-    def _input_table_form_for(self, id, title, questions, answer_options, answer_text):
+    def _input_table_form_for(self, id_element, title, questions, answer_options, answer_text):
         answer = f"{title}\n\n"
         try:
             for idx, question in enumerate(questions):
                 answer_id = (idx+1)*2
-                table_query = (f'div[aria-labelledby="i{id}"] > div:nth-child(1) > div > '
+                table_query = (f'div[aria-labelledby="i{id_element+self.offset}"] > div:nth-child(1) > div > '
                                f'div:nth-child({answer_id}) > span > div:nth-child({answer_options[idx]+2}) > '
                                 'div > div')
 
@@ -271,29 +306,30 @@ class InterviewSpider(scrapy.Spider):
             if self.debug == True:
                 import ipdb; ipdb.set_trace()
             else:
-                self.logger.critical(f"""Can't find input[aria-labelledby="i{id}"]""")        
+                self.logger.critical(f"""Can't find input[aria-labelledby="i{id_element}"]""")        
             traceback.print_exc()
 
-    def _input_form_for(self, id, question, answer):
+    def _input_form_for(self, id_element, question, answer):
         try:
-            self.driver.find_element_by_css_selector(f'input[aria-labelledby="i{id}"]').send_keys(answer)
+            query = f'input[aria-labelledby="i{id_element+self.offset}"]'
+            self.driver.find_element_by_css_selector(query).send_keys(answer)
             self.answers.append(f"{question}: {answer}")
         except:
             if self.debug == True:
                 import ipdb; ipdb.set_trace()
             else:
-                self.logger.critical(f"""Can't find input[aria-labelledby="i{id}"]""")        
+                self.logger.critical(f"""Can't find input[aria-labelledby="i{id_element}"]""")        
             traceback.print_exc()
 
-    def _click_by_label_for(self, id, question, answers):
+    def _click_by_label_for(self, id_element, question, answers):
         try:
-            self.driver.find_element_by_css_selector(f'label[for="i{id}"]').click()
-            self.answers.append(f"{question}: {answers[id]}")
+            self.driver.find_element_by_css_selector(f'label[for="i{id_element+self.offset}"]').click()
+            self.answers.append(f"{question}: {answers[id_element]}")
         except:
             if self.debug == True:
                 import ipdb; ipdb.set_trace()
             else:
-                self.logger.critical(f"""Can't find label[for="i{id}"]""")
+                self.logger.critical(f"""Can't find label[for="i{id_element}"]""")
         traceback.print_exc()
 
     def _set_lang(self, lang_id):
@@ -312,5 +348,13 @@ class InterviewSpider(scrapy.Spider):
             return choice(self.city_kg_en)
         else:
             return choice(self.city_kg_ru)
+
+    def _enter_to_interview(self):
+        self.current_page = 1
+        self.driver.find_element_by_css_selector('div[data-is-receipt-checked] div[role="button"]').click()
+
+    def _go_to_next_page(self):
+        self.current_page += 1
+        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
 
 
