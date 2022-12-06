@@ -11,16 +11,6 @@ import traceback
 
 START_URL = 'https://forms.gle/s8ME2PMP9o5PMKsW7'
 
-CITY_KG_RU = ['Айдаркен','Балыкчы','Баткен','Бишкек','Джалал-Абад','Кадамжай','Каинды','Кант','Кара-Балта','Каракол',
-              'Кара-Куль','Кара-Суу','Кемин','Кербен','Кок-Джангак','Кочкор-Ата','Кызыл-Кия','Майлуу-Суу','Нарын',
-              'Ноокат','Орловка','Ош','Раззаков','Сулюкта','Талас','Таш-Кумыр','Токмок','Токтогул','Узген',
-              'Чолпон-Ата','Шопоков']
-
-CITY_KG_EN = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','Kaindy','Kant','Kara-Balta','Karakol',
-              'Kara-Kul','Kara-Suu','Kemin','Kerben','Kok-Dzhangak','Kochkor-Ata','Kyzyl-Kiya','Mailuu-Suu','Naryn',
-              'Nookat','Orlovka','Osh','Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok','Toktogul','Uzgen',
-              'Cholpon-Ata','Shopokov']
-
 now = dt.now()
 
 def generate_with_probability(elements, distribution):
@@ -41,9 +31,19 @@ class InterviewSpider(scrapy.Spider):
     allowed_domains = [START_URL]
     start_urls = [START_URL]
 
-    debug = True
-    driver = None
+    city_kg_ru = ['Айдаркен','Балыкчы','Баткен','Бишкек','Джалал-Абад','Кадамжай','Каинды','Кант','Кара-Балта',
+                  'Кара-Куль','Кара-Суу','Кемин','Кербен','Кок-Джангак','Кочкор-Ата','Кызыл-Кия','Майлуу-Суу',                  'Ноокат','Орловка','Ош','Раззаков','Сулюкта','Талас','Таш-Кумыр','Токмок','Токтогул','Узген',
+                  'Чолпон-Ата','Шопоков', 'Каракол', 'Нарын']
+
+    city_kg_en = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','Kaindy','Kant','Kara-Balta',
+                  'Kara-Kul','Kara-Suu','Kemin','Kerben','Kok-Dzhangak','Kochkor-Ata','Kyzyl-Kiya','Mailuu-Suu',
+                  'Nookat','Orlovka','Osh','Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok','Toktogul','Uzgen',
+                  'Cholpon-Ata','Shopokov', 'Karakol']
+
     answers = [f"Date: {now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"]
+    driver = None
+    debug = True
+    lang = None
 
     def start_requests(self):
         yield SeleniumRequest(url=START_URL, callback=self.parse_1st_page_review)
@@ -52,11 +52,15 @@ class InterviewSpider(scrapy.Spider):
         self.driver = responce.meta['driver']
 
         sleep(2)
+        random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
         self._click_by_label_for(
-            choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65]), 
+            random_lang, 
             'Choose language', 
             {5: 'English language', 8: 'Русский язык', 11: 'Кыргыз тили'}
         ) # i5|8|11
+
+        self._set_lang(random_lang)
+
         sleep(2)
         self.driver.find_element_by_css_selector('div[data-is-receipt-checked] div[role="button"]').click()
 
@@ -65,9 +69,9 @@ class InterviewSpider(scrapy.Spider):
     def parse_2nd_page_review(self):
         sleep(5)
 
-        self._input_form_for(1, 'Please indicate your city', choice(CITY_KG_EN))
+        self._input_form_for(1, 'Please indicate your city', self._select_random_city())
         sleep(2)
-
+        import ipdb; ipdb.set_trace()
         self._click_by_label_for(9, 'Please indicate your gende', {9: 'Female', 12: 'Male'}) # i9|12
         sleep(2)
         self._click_by_label_for(22, 'Please indicate your age', 
@@ -291,5 +295,22 @@ class InterviewSpider(scrapy.Spider):
             else:
                 self.logger.critical(f"""Can't find label[for="i{id}"]""")
         traceback.print_exc()
+
+    def _set_lang(self, lang_id):
+        if lang_id == 5:
+            self.lang = 'en'
+        elif lang_id == 8:
+            self.lang = 'ru'
+        else: 
+            self.lang = 'kg'
+
+    def _select_random_city(self):
+        if not self.lang:
+            raise Exception('Language must be set')
+
+        if self.lang == 'en':
+            return choice(self.city_kg_en)
+        else:
+            return choice(self.city_kg_ru)
 
 
