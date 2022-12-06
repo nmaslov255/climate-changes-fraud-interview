@@ -23,6 +23,19 @@ CITY_KG_EN = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','
 
 now = dt.now()
 
+def generate_with_probability(elements, distribution):
+    if sum(distribution) != 1:
+        raise Exception('Probability must me equal 1 (100%)')
+
+    sample = []
+    for element, percent in zip(elements, distribution):
+        sample += [element] * int(percent*100)
+    return sample
+
+def choice_with_probability(elements, distribution):
+    return choice(generate_with_probability(elements, distribution))
+
+
 class InterviewSpider(scrapy.Spider):
     name = 'interview'
     allowed_domains = [START_URL]
@@ -39,7 +52,9 @@ class InterviewSpider(scrapy.Spider):
         self.driver = responce.meta['driver']
 
         sleep(2)
-        self._click_by_label_for(5, 'Choose language', 
+        self._click_by_label_for(
+            choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65]), 
+            'Choose language', 
             {5: 'English language', 8: 'Русский язык', 11: 'Кыргыз тили'}
         ) # i5|8|11
         sleep(2)
@@ -59,6 +74,7 @@ class InterviewSpider(scrapy.Spider):
             {22: '16-24', 25: '25-44', 28: '45-64', 31: 'Prefer not to say'}
         ) # i22|25|28|31
         sleep(2)
+
         self._click_by_label_for(38, 'Please indicate your household income per month',
             {38: '10,000 KGS', 41: '20,000 KGS', 44: '30,000 KGS', 47: '40,000 KGS', 50: '50,000 KGS', 
              53: '75,000 KGS and more', 56: 'I don\'t know', 59: 'Prefer not to say'}
