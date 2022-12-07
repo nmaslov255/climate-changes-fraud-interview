@@ -23,7 +23,7 @@ ROBOTSTXT_OBEY = False
 SELENIUM_DRIVER_NAME = 'chrome'
 
 SELENIUM_DRIVER_EXECUTABLE_PATH = ChromeDriverManager().install()
-SELENIUM_DRIVER_ARGUMENTS=[] # -headless
+SELENIUM_DRIVER_ARGUMENTS=['-headless'] # -headless
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 1
