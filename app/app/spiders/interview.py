@@ -3,6 +3,8 @@ import scrapy
 from scrapy_selenium import SeleniumRequest
 from scrapy.selector import Selector
 
+from selenium.webdriver.common.by import By
+
 from time import sleep
 from datetime import datetime as dt
 from random import choice, randrange
@@ -46,7 +48,7 @@ class InterviewSpider(scrapy.Spider):
     current_page = None
     driver       = None
     offset       = 0
-    debug        = True
+    debug        = False
     lang         = None
 
 
@@ -307,7 +309,7 @@ class InterviewSpider(scrapy.Spider):
         )
 
         sleep(0.5)
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        self.driver.find_elements(By.CSS_SELECTOR, 'div[data-is-receipt-checked] div[role="button"]')[1].click()
         self._save_answers_to(f'answers/{self.date}.txt')
 
     def _save_answers_to(self, filename):
@@ -327,7 +329,7 @@ class InterviewSpider(scrapy.Spider):
                                f'div:nth-child({answer_id}) > span > div:nth-child({answer_options[idx]+2}) > '
                                 'div > div')
 
-                self.driver.find_element_by_css_selector(table_query).click()
+                self.driver.find_element(By.CSS_SELECTOR, table_query).click()
                 answer += f'{question}: {answer_text[answer_options[idx]]}\n'
 
             self.answers.append(answer)
@@ -341,7 +343,7 @@ class InterviewSpider(scrapy.Spider):
     def _input_form_for(self, id_element, question, answer):
         try:
             query = f'input[aria-labelledby="i{id_element+self.offset}"]'
-            self.driver.find_element_by_css_selector(query).send_keys(answer)
+            self.driver.find_element(By.CSS_SELECTOR, query).send_keys(answer)
             self.answers.append(f"{question}: {answer}")
         except:
             if self.debug == True:
@@ -352,7 +354,7 @@ class InterviewSpider(scrapy.Spider):
 
     def _click_by_label_for(self, id_element, question, answers):
         try:
-            self.driver.find_element_by_css_selector(f'label[for="i{id_element+self.offset}"]').click()
+            self.driver.find_element(By.CSS_SELECTOR, f'label[for="i{id_element+self.offset}"]').click()
             self.answers.append(f"{question}: {answers[id_element]}")
         except:
             if self.debug == True:
@@ -380,10 +382,10 @@ class InterviewSpider(scrapy.Spider):
 
     def _enter_to_interview(self):
         self.current_page = 1
-        self.driver.find_element_by_css_selector('div[data-is-receipt-checked] div[role="button"]').click()
+        self.driver.find_element(By.CSS_SELECTOR, 'div[data-is-receipt-checked] div[role="button"]').click()
 
     def _go_to_next_page(self):
         self.current_page += 1
-        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        self.driver.find_elements(By.CSS_SELECTOR, 'div[data-is-receipt-checked] div[role="button"]')[1].click()
 
 
