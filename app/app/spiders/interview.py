@@ -33,12 +33,12 @@ class InterviewSpider(scrapy.Spider):
 
     city_kg_ru = ['Айдаркен','Балыкчы','Баткен','Бишкек','Джалал-Абад','Кадамжай','Каинды','Кант','Кара-Балта',
                   'Кара-Куль','Кара-Суу','Кемин','Кербен','Кок-Джангак','Кочкор-Ата','Кызыл-Кия','Майлуу-Суу',                  'Ноокат','Орловка','Ош','Раззаков','Сулюкта','Талас','Таш-Кумыр','Токмок','Токтогул','Узген',
-                  'Чолпон-Ата','Шопоков', 'Каракол', 'Нарын']
+                  'Чолпон-Ата','Шопоков', 'Каракол', 'Нарын', 'Ош', 'Ош', 'Ош', 'Ош']
 
     city_kg_en = ['Aidarken','Balykchy','Batken','Bishkek','Jalal-Abad','Kadamjai','Kaindy','Kant','Kara-Balta',
                   'Kara-Kul','Kara-Suu','Kemin','Kerben','Kok-Dzhangak','Kochkor-Ata','Kyzyl-Kiya','Mailuu-Suu',
-                  'Nookat','Orlovka','Osh','Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok','Toktogul','Uzgen',
-                  'Cholpon-Ata','Shopokov', 'Karakol']
+                  'Nookat','Orlovka','Osh', 'Osh', 'Osh', 'Osh', 'Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok',
+                  'Toktogul','Uzgen','Cholpon-Ata','Shopokov', 'Karakol']
 
     answers = [f"Date: {now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"]
     current_page = None
@@ -55,8 +55,7 @@ class InterviewSpider(scrapy.Spider):
         self.driver = responce.meta['driver']
 
         sleep(2)
-        # random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
-        random_lang = 8
+        random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
         self._click_by_label_for(
             random_lang, 
             'Choose language', 
@@ -76,7 +75,7 @@ class InterviewSpider(scrapy.Spider):
         sleep(2)
 
         self._click_by_label_for(
-            choice_with_probability([9, 12], [0.5, 0.5]), 
+            choice_with_probability([9, 12], [0.55, 0.45]), 
             'Please indicate your gende', 
             {9: 'Female', 12: 'Male'}
         ) # i9|12
@@ -137,7 +136,7 @@ class InterviewSpider(scrapy.Spider):
             ('What do you think people would think of you if you made sacrifices to protect '
              'the environment?'), 
             ['Family', 'Friends', 'Colleagues'], 
-            [choice_with_probability([2, 3, 4], [0.3, 0.3, 0.4]) for _ in range(3)],
+            [choice_with_probability([3], [1]) for _ in range(3)],
             ['Very Unfavourable: They try to stop me', 'Unfavourable but do not try to stop me',
              'They don\'t care', 'Favorable: They support me but wont make sacrifices themselves', 
              'Very favorable: They d like to also make sacrifices']
@@ -170,7 +169,7 @@ class InterviewSpider(scrapy.Spider):
             ('I feel I could influence my workplace/boss to be more environmentally '
              'friendly (pollute less, use electric car, use less plastic…)'), 
             ['Workplace / Colleagues / Boss', 'Friends', 'Colleagues'], 
-            [choice_with_probability([1, 2, 3, 4], [0.2, 0.3, 0.4, 0.1]) for _ in range(3)],
+            [choice_with_probability([1, 2, 3, 4], [0.2, 0.3, 0.5 ]) for _ in range(3)],
             ['I could NOT influence them at all', 'It is not likely I could influence them',
              'Maybe / not sure', 'I could likely influence them', 'I could very likely influence them']
         )
@@ -240,13 +239,13 @@ class InterviewSpider(scrapy.Spider):
     def parse_6th_page_review(self):        
         sleep(5)
 
-        self._input_form_for(1, 'Average smoking member in your family', randrange(5))
+        self._input_form_for(1, 'Average smoking member in your family', randrange(4))
         sleep(1)
         self._input_table_form_for(
             5, 
             ('What do you use for home heating'),
             ['Coal', 'Gas', 'Electricity'], 
-            [choice_with_probability([0, 1, 2], [0.2, 0.5, 0.3]) for _ in range(3)],
+            [choice_with_probability([0, 1, 2], [0.5, 0.2, 0.3]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Always']
         )
 
@@ -255,7 +254,7 @@ class InterviewSpider(scrapy.Spider):
             9, 
             ('What do you use for cooking meal'),
             ['Coal', 'Gas', 'Electricity'], 
-            [choice_with_probability([0, 1, 2], [0.3, 0.5, 0.2]) for _ in range(3)],
+            [choice_with_probability([0, 1, 2], [0.5, 0.3, 0.2]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Always']
         )
 
@@ -273,7 +272,7 @@ class InterviewSpider(scrapy.Spider):
                 26, 
                 ('Have you experienced the following in the last three months?'),
                 ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever'], 
-                [choice_with_probability([0, 1, 2], [0.3, 0.3, 0.4]) for _ in range(6)],
+                [choice_with_probability([0, 1, 2], [0.3, 0.5, 0.2]) for _ in range(6)],
                 ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
             )
         else:
@@ -281,7 +280,7 @@ class InterviewSpider(scrapy.Spider):
                 26, 
                 ('Have you experienced the following in the last three months?'),
                 ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever', 'Other'], 
-                [choice_with_probability([0, 1, 2], [0.3, 0.3, 0.4]) for _ in range(7)],
+                [choice_with_probability([0, 1, 2], [0.3, 0.5, 0.2]) for _ in range(7)],
                 ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
             )
          
@@ -306,7 +305,7 @@ class InterviewSpider(scrapy.Spider):
         )
 
         sleep(1)
-        # self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
 
         import ipdb; ipdb.set_trace()
 
