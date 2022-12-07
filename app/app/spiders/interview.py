@@ -171,7 +171,7 @@ class InterviewSpider(scrapy.Spider):
             ('I feel I could influence my workplace/boss to be more environmentally '
              'friendly (pollute less, use electric car, use less plastic…)'), 
             ['Workplace / Colleagues / Boss', 'Friends', 'Colleagues'], 
-            [choice_with_probability([1, 2, 3, 4], [0.2, 0.3, 0.5 ]) for _ in range(3)],
+            [choice_with_probability([1, 2, 3], [0.2, 0.3, 0.5]) for _ in range(3)],
             ['I could NOT influence them at all', 'It is not likely I could influence them',
              'Maybe / not sure', 'I could likely influence them', 'I could very likely influence them']
         )
