@@ -56,7 +56,7 @@ class InterviewSpider(scrapy.Spider):
 
         sleep(2)
         # random_lang = choice_with_probability([5, 8, 11], [0.1, 0.25, 0.65])
-        random_lang = 5
+        random_lang = 8
         self._click_by_label_for(
             random_lang, 
             'Choose language', 
@@ -115,7 +115,8 @@ class InterviewSpider(scrapy.Spider):
 
     def parse_3th_page_review(self):
         sleep(5)
-        self._click_by_label_for(5,
+        self._click_by_label_for(
+            choice_with_probability([5, 8, 11, 14], [0.6, 0.2, 0.1, 0.1]),
             'Do any of your friends, family or colleagues make sacrifices to protect the environment?',
             {5: 'Never', 8: 'Very rarely', 11: 'Rarely', 14: 'Sometimes', 17: 'Always', 20: 
             'I dont know we never discuss this'}
@@ -126,23 +127,25 @@ class InterviewSpider(scrapy.Spider):
             ('How much influence do your family, friends and colleagues have on your decision to make sacrifices '
              'to protect the environment?'), 
             ['Family', 'Friends', 'Colleagues'], 
-            [randrange(5) for _ in range(3)],
+            [choice_with_probability([0, 1, 2, 3], [0.6, 0.2, 0.1, 0.1]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Often', 'Always']
         )
         sleep(1)
+
         self._input_table_form_for(
             27, 
             ('What do you think people would think of you if you made sacrifices to protect '
              'the environment?'), 
             ['Family', 'Friends', 'Colleagues'], 
-            [randrange(5) for _ in range(3)],
+            [choice_with_probability([2, 3, 4], [0.3, 0.3, 0.4]) for _ in range(3)],
             ['Very Unfavourable: They try to stop me', 'Unfavourable but do not try to stop me',
              'They don\'t care', 'Favorable: They support me but wont make sacrifices themselves', 
              'Very favorable: They d like to also make sacrifices']
         )
         sleep(1)
 
-        self._click_by_label_for(35, 
+        self._click_by_label_for(
+            choice_with_probability([35, 38, 41], [0.5, 0.3, 0.2]), 
             ('Following environmental influencers: I follow influencers on social media (e.g. YouTube, Instagram) '
             'who post about the environment and sustainability'),
             {35: 'I never do, I am not interested', 38: 'I rarely do', 
@@ -155,7 +158,9 @@ class InterviewSpider(scrapy.Spider):
     def parse_4th_page_review(self):
         sleep(5)
 
-        self._click_by_label_for(5, 'How easy would you find it to make sacrifices to protect the environment?',
+        self._click_by_label_for(
+            choice_with_probability([5, 8], [0.3, 0.7]), 
+            'How easy would you find it to make sacrifices to protect the environment?',
             {5: 'Very Difficult', 8: 'Difficult', 11: 'Easy', 14: 'Very Easy'}
         ) # i5|8|11|14
         
@@ -165,7 +170,7 @@ class InterviewSpider(scrapy.Spider):
             ('I feel I could influence my workplace/boss to be more environmentally '
              'friendly (pollute less, use electric car, use less plastic…)'), 
             ['Workplace / Colleagues / Boss', 'Friends', 'Colleagues'], 
-            [randrange(5) for _ in range(3)],
+            [choice_with_probability([1, 2, 3, 4], [0.2, 0.3, 0.4, 0.1]) for _ in range(3)],
             ['I could NOT influence them at all', 'It is not likely I could influence them',
              'Maybe / not sure', 'I could likely influence them', 'I could very likely influence them']
         )
@@ -178,22 +183,30 @@ class InterviewSpider(scrapy.Spider):
     def parse_5th_page_review(self):
         sleep(5)
 
-        self._click_by_label_for(5, 'I believe that Air quality in my city is',
+        self._click_by_label_for(
+            choice_with_probability([5, 8], [0.3, 0.7]), 
+            'I believe that Air quality in my city is',
             {5: 'Very bad', 8: 'Bad', 11: 'Good', 14: 'Very good'}
         ) # i5|8|11|14
         
         sleep(1)
-        self._click_by_label_for(21, 'I know what PM2.5 means', 
+        self._click_by_label_for(
+            choice_with_probability([21, 24], [0.05, 0.95]), 
+            'I know what PM2.5 means', 
             {21: 'Yes', 24: 'No'}
         ) # i21|24
 
         sleep(1)
-        self._click_by_label_for(31, 'I understand the danger of air pollution',
+        self._click_by_label_for(
+            choice_with_probability([31, 34], [0.95, 0.05]), 
+            'I understand the danger of air pollution',
             {31: 'Yes', 34: 'No'}
         ) # i31|34
 
         sleep(1)
-        self._click_by_label_for(41, 'How important is the issue of climate change to you personally?', 
+        self._click_by_label_for(
+            choice_with_probability([44, 47, 50, 53], [0.1, 0.2, 0.4, 0.3]), 
+            'How important is the issue of climate change to you personally?', 
             {41: 'This is not an issue at all', 44: 'I don\'t care about this issue', 47: 'I am indifferent', 
              50: 'I somewhat care', 53: 'I very much care'}
         ) # i41|44|47|50|53
@@ -201,7 +214,9 @@ class InterviewSpider(scrapy.Spider):
         sleep(1)
 
         if self.lang == 'en':
-            self._click_by_label_for(60, 'How much do you know about climate change', 
+            self._click_by_label_for(
+                choice_with_probability([63, 66, 69], [0.1, 0.2, 0.7]), 
+                'How much do you know about climate change', 
                 {60: 'This is not an issue', 63: 'I don\'t know anything', 66: 'I am not interested to know', 
                  69: 'I know a little bit', 72: 'I know a lot'}
             ) # i60|63|66|69|72
@@ -209,7 +224,9 @@ class InterviewSpider(scrapy.Spider):
             self.offset -= 19
 
         sleep(1)
-        self._click_by_label_for(79, 'Climate change does not exist', 
+        self._click_by_label_for(
+            choice_with_probability([79, 82, 85], [0.2, 0.5, 0.3]), 
+            'Climate change does not exist', 
             {79: 'Climate change is caused only by natural processes', 
              82: 'Climate change is caused only by human activity', 85: 'I don’t know what is causing climate change',
              88: 'Climate change does not exist'}
@@ -229,7 +246,7 @@ class InterviewSpider(scrapy.Spider):
             5, 
             ('What do you use for home heating'),
             ['Coal', 'Gas', 'Electricity'], 
-            [randrange(4) for _ in range(3)],
+            [choice_with_probability([0, 1, 2], [0.2, 0.5, 0.3]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Always']
         )
 
@@ -238,11 +255,15 @@ class InterviewSpider(scrapy.Spider):
             9, 
             ('What do you use for cooking meal'),
             ['Coal', 'Gas', 'Electricity'], 
-            [randrange(4) for _ in range(3)],
+            [choice_with_probability([0, 1, 2], [0.3, 0.5, 0.2]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Always']
         )
 
-        self._click_by_label_for(17, 'Do you use an air purifier at home', {17: 'Yes', 20: 'No'}) # i17|20
+        self._click_by_label_for(
+            choice_with_probability([17, 20], [0.05, 0.95]),
+            'Do you use an air purifier at home', 
+            {17: 'Yes', 20: 'No'}
+        ) # i17|20
 
         if self.lang == 'kg':
             self.offset = -3
@@ -252,7 +273,7 @@ class InterviewSpider(scrapy.Spider):
                 26, 
                 ('Have you experienced the following in the last three months?'),
                 ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever'], 
-                [randrange(5) for _ in range(6)],
+                [choice_with_probability([0, 1, 2], [0.3, 0.3, 0.4]) for _ in range(6)],
                 ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
             )
         else:
@@ -260,7 +281,7 @@ class InterviewSpider(scrapy.Spider):
                 26, 
                 ('Have you experienced the following in the last three months?'),
                 ['Cough', 'Dry Throat', 'Sneezing/allergy', 'Flu', 'Asthma', 'Fever', 'Other'], 
-                [randrange(5) for _ in range(7)],
+                [choice_with_probability([0, 1, 2], [0.3, 0.3, 0.4]) for _ in range(7)],
                 ['Never', 'Very Rarely', 'Often', 'Nearly Always', 'Always']
             )
          
@@ -280,7 +301,7 @@ class InterviewSpider(scrapy.Spider):
              'I would support those who care about the environment',
              'I believe that more trees should be planted',
              'I try to push my company/work to be more green'], 
-            [randrange(5) for _ in range(10)],
+            [choice_with_probability([1, 2, 3], [0.3, 0.3, 0.4]) for _ in range(10)],
             ['Never', 'Very rarely', 'Sometime', 'Often', 'Always']
         )
 
