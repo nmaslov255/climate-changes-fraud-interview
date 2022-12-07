@@ -40,7 +40,9 @@ class InterviewSpider(scrapy.Spider):
                   'Nookat','Orlovka','Osh', 'Osh', 'Osh', 'Osh', 'Razzakov','Sulukta','Talas','Tash-Kumyr','Tokmok',
                   'Toktogul','Uzgen','Cholpon-Ata','Shopokov', 'Karakol']
 
-    answers = [f"Date: {now.year}/{now.month}/{now.day} {now.hour}:{now.minute}"]
+    answers = []
+    date = f"{now.year}|{now.month}|{now.day}_{now.hour}:{now.minute}:{now.second}"
+
     current_page = None
     driver       = None
     offset       = 0
@@ -99,7 +101,7 @@ class InterviewSpider(scrapy.Spider):
          ) # i38|41|44|47|50|53|56|59
         sleep(2)
         self._click_by_label_for(
-            choice_with_probability([66, 69, 72, 75], [0.1, 0.2, 0.6, 0.1]), 
+            choice_with_probability([66, 69, 72], [0.1, 0.3, 0.6]), 
             'Please indicate your education level', 
             {66: 'No Formal Education', 69: 'Primary Education', 72: 'Secondary', 75: 'University Degree', 
              78: 'Master or equivalent'}
@@ -129,7 +131,7 @@ class InterviewSpider(scrapy.Spider):
             [choice_with_probability([0, 1, 2, 3], [0.6, 0.2, 0.1, 0.1]) for _ in range(3)],
             ['Never', 'Rarely', 'From time to time', 'Often', 'Always']
         )
-        sleep(1)
+        sleep(0.5)
 
         self._input_table_form_for(
             27, 
@@ -141,7 +143,7 @@ class InterviewSpider(scrapy.Spider):
              'They don\'t care', 'Favorable: They support me but wont make sacrifices themselves', 
              'Very favorable: They d like to also make sacrifices']
         )
-        sleep(1)
+        sleep(0.5)
 
         self._click_by_label_for(
             choice_with_probability([35, 38, 41], [0.5, 0.3, 0.2]), 
@@ -163,7 +165,7 @@ class InterviewSpider(scrapy.Spider):
             {5: 'Very Difficult', 8: 'Difficult', 11: 'Easy', 14: 'Very Easy'}
         ) # i5|8|11|14
         
-        sleep(1)
+        sleep(0.5)
         self._input_table_form_for(
             17, 
             ('I feel I could influence my workplace/boss to be more environmentally '
@@ -173,7 +175,7 @@ class InterviewSpider(scrapy.Spider):
             ['I could NOT influence them at all', 'It is not likely I could influence them',
              'Maybe / not sure', 'I could likely influence them', 'I could very likely influence them']
         )
-        sleep(1)
+        sleep(0.5)
 
         self._go_to_next_page()
         self.parse_5th_page_review()
@@ -188,21 +190,21 @@ class InterviewSpider(scrapy.Spider):
             {5: 'Very bad', 8: 'Bad', 11: 'Good', 14: 'Very good'}
         ) # i5|8|11|14
         
-        sleep(1)
+        sleep(0.5)
         self._click_by_label_for(
             choice_with_probability([21, 24], [0.05, 0.95]), 
             'I know what PM2.5 means', 
             {21: 'Yes', 24: 'No'}
         ) # i21|24
 
-        sleep(1)
+        sleep(0.5)
         self._click_by_label_for(
             choice_with_probability([31, 34], [0.95, 0.05]), 
             'I understand the danger of air pollution',
             {31: 'Yes', 34: 'No'}
         ) # i31|34
 
-        sleep(1)
+        sleep(0.5)
         self._click_by_label_for(
             choice_with_probability([44, 47, 50, 53], [0.1, 0.2, 0.4, 0.3]), 
             'How important is the issue of climate change to you personally?', 
@@ -210,7 +212,7 @@ class InterviewSpider(scrapy.Spider):
              50: 'I somewhat care', 53: 'I very much care'}
         ) # i41|44|47|50|53
 
-        sleep(1)
+        sleep(0.5)
 
         if self.lang == 'en':
             self._click_by_label_for(
@@ -222,7 +224,7 @@ class InterviewSpider(scrapy.Spider):
         else:
             self.offset -= 19
 
-        sleep(1)
+        sleep(0.5)
         self._click_by_label_for(
             choice_with_probability([79, 82, 85], [0.2, 0.5, 0.3]), 
             'Climate change does not exist', 
@@ -240,7 +242,7 @@ class InterviewSpider(scrapy.Spider):
         sleep(5)
 
         self._input_form_for(1, 'Average smoking member in your family', randrange(4))
-        sleep(1)
+        sleep(0.5)
         self._input_table_form_for(
             5, 
             ('What do you use for home heating'),
@@ -249,7 +251,7 @@ class InterviewSpider(scrapy.Spider):
             ['Never', 'Rarely', 'From time to time', 'Always']
         )
 
-        sleep(1)
+        sleep(0.5)
         self._input_table_form_for(
             9, 
             ('What do you use for cooking meal'),
@@ -267,7 +269,7 @@ class InterviewSpider(scrapy.Spider):
         if self.lang == 'kg':
             self.offset = -3
 
-            sleep(1)
+            sleep(0.5)
             self._input_table_form_for(
                 26, 
                 ('Have you experienced the following in the last three months?'),
@@ -285,7 +287,7 @@ class InterviewSpider(scrapy.Spider):
             )
          
 
-        sleep(1)
+        sleep(0.5)
 
         self._input_table_form_for(
             30, 
@@ -304,10 +306,17 @@ class InterviewSpider(scrapy.Spider):
             ['Never', 'Very rarely', 'Sometime', 'Often', 'Always']
         )
 
-        sleep(1)
+        sleep(0.5)
         self.driver.find_elements_by_css_selector('div[data-is-receipt-checked] div[role="button"]')[1].click()
+        self._save_answers_to(f'answers/{self.date}.txt')
 
-        import ipdb; ipdb.set_trace()
+    def _save_answers_to(self, filename):
+        output = ''
+
+        with open(filename, 'w') as fp:
+            for answer in self.answers:
+                output += f"{answer}\n***\n"
+            fp.write(output)
 
     def _input_table_form_for(self, id_element, title, questions, answer_options, answer_text):
         answer = f"{title}\n\n"

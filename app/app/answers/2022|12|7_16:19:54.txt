@@ -1,0 +1,92 @@
+Choose language: Русский язык
+***
+Please indicate your city: Джалал-Абад
+***
+Please indicate your gende: Female
+***
+Please indicate your age: 25-44
+***
+Please indicate your household income per month: Prefer not to say
+***
+Please indicate your education level: Secondary
+***
+Do any of your friends, family or colleagues make sacrifices to protect the environment?: Never
+***
+How much influence do your family, friends and colleagues have on your decision to make sacrifices to protect the environment?
+
+Family: Never
+Friends: From time to time
+Colleagues: Rarely
+
+***
+What do you think people would think of you if you made sacrifices to protect the environment?
+
+Family: Favorable: They support me but wont make sacrifices themselves
+Friends: Favorable: They support me but wont make sacrifices themselves
+Colleagues: Favorable: They support me but wont make sacrifices themselves
+
+***
+Following environmental influencers: I follow influencers on social media (e.g. YouTube, Instagram) who post about the environment and sustainability: I never do, I am not interested
+***
+How easy would you find it to make sacrifices to protect the environment?: Difficult
+***
+I feel I could influence my workplace/boss to be more environmentally friendly (pollute less, use electric car, use less plastic…)
+
+Workplace / Colleagues / Boss: I could likely influence them
+Friends: It is not likely I could influence them
+Colleagues: It is not likely I could influence them
+
+***
+I believe that Air quality in my city is: Bad
+***
+I know what PM2.5 means: No
+***
+I understand the danger of air pollution: Yes
+***
+How important is the issue of climate change to you personally?: I somewhat care
+***
+Climate change does not exist: Climate change is caused only by natural processes
+***
+Average smoking member in your family: 0
+***
+What do you use for home heating
+
+Coal: Never
+Gas: Never
+Electricity: From time to time
+
+***
+What do you use for cooking meal
+
+Coal: From time to time
+Gas: Never
+Electricity: Never
+
+***
+Do you use an air purifier at home: No
+***
+Have you experienced the following in the last three months?
+
+Cough: Never
+Dry Throat: Never
+Sneezing/allergy: Often
+Flu: Often
+Asthma: Very Rarely
+Fever: Never
+Other: Very Rarely
+
+***
+Pro-Environmental Behaviour / Intentions
+
+I leave the water running while I brush my teeth: Often
+I forget to turn off the light when I leave my room: Often
+I leave the fridge door open while I think about what I go eat: Often
+Outside I put my trash in the bin: Often
+I leave the TV on while I'm doing other things in the house: Often
+I read documents or books about environmental protection: Often
+I am willing to change my behaviour to change the state of the environment: Sometime
+I would support those who care about the environment: Sometime
+I believe that more trees should be planted: Very rarely
+I try to push my company/work to be more green: Very rarely
+
+***
